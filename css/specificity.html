@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Specificity</title>\
+	<style type="text/css">
+	ul {
+		color:purple; /* whichever is more specific will win out */
+	}
+
+	body {
+		color:green;
+	}
+
+	.highlight {
+		color:blue;
+	}
+
+	#test {
+		color:orange;
+	}
+
+	</style>
+</head>
+<body>
+
+<p>HELLO!!!</p>
+
+<ul>
+	<li class="highlight" id="test">John</li>
+	<li class="highlight">George</li>
+	<li>Sarah</li>
+	<li>Susan</li>
+</ul>
+
+
+</body>
+</html>

@@ -1,0 +1,68 @@
+<!-- <form action="where are you sending me?" method="what REST method">
+	<input type="button"/>
+	<input type="color"/>
+	<input type="text"/>
+	<input type="email"/>
+	<input type="password"/>
+	<button>Login</button>
+</form> -->
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Form Demo</title>
+</head>
+<body>
+	<h1>Login</h1>
+	<!-- use name to retrieve data later -->
+	<!-- <form action="http://wikipedia.org" method="get">
+		<label>Username:
+			<input type="text" name="username" placeholder="Username">
+		</label>
+
+		<label>Password:
+			<input type="password" name="password" placeholder="password">
+		</label>
+
+		<button>Submit</button>
+		<input type="submit" name="">
+	</form> -->
+
+	<!-- use id and for to link labels and input tags -->
+	<!-- can use required for presence validation -->
+	<!-- can include a type to reuqire certain formatting -->
+	<!-- <form>
+		<label for="username">Username:</label>
+		<input id="username" type="email" name="username" placeholder="Username" required>
+
+		<label for="password">Password:</label>
+		<input id="password" type="password" name="password" placeholder="password" required>
+		<input type="submit" name="">
+	</form> -->
+<!-- 
+	<input type="radio"> used when user has one choice. i.e. Male or Female
+	<input type="checkbox"> -->
+
+<!-- value will output a value of that name -->
+	<p>Do you prefer cats or dogs?</p>
+	<form>
+		<label for="dogs">Dogs:</label>
+		<input name="petchoice" id="dogs" type="radio" value="DOGS">
+
+		<label for="cats">Cats:</label>
+		<input name="petchoice" id="cats" type="radio" value="CATS">
+
+	<p>What's you favorite color</p>
+		<select name="color">
+			<option value="r">Red</option>
+			<option value="o">Orange</option>			
+			<option value="y">Yellow</option>
+		</select>
+
+	<p>Text Input</p>
+	<textarea name="paragraph" rows="10" cols="10"></textarea>
+
+		<button>Go!</button>
+	</form>
+		<!-- if buttons are last they will act as input submit -->
+</body>
+</html>

@@ -1,0 +1,15 @@
+body {
+	background: orange; /*In order to check connectivity*/
+}
+
+li {
+	border: 2px solid red;
+}
+
+#special { /*referring to an id*/
+	background: yellow;
+}
+
+.test { /*referring to a class*/
+	text-decoration: line-through;
+}
