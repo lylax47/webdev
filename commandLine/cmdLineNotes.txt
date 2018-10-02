@@ -1,0 +1,3 @@
+clear -> clears all lines
+
+touch -> makes new file
