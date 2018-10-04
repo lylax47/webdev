@@ -1,0 +1,16 @@
+{
+  "name": "express-intro",
+  "version": "1.0.0",
+  "description": "more express",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "John",
+  "license": "ISC",
+  "dependencies": {
+    "ejs": "^2.6.1",
+    "expres": "0.0.5",
+    "express": "^4.16.3"
+  }
+}
