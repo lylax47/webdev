@@ -19,9 +19,17 @@ app.get("/speak/:animal", function(req, res){
 
 app.get("/repeat/:word/:number", function(req, res){
     var word = req.params.word;
-    var number = req.params.number;
-    res.send(`${word} `.repeat(number));
+    var number = Number(req.params.number);
+    var strOut = "";
+    for(var i=0; i<number; i++){
+        strOut += `${word} `;
+    }
+    res.send(strOut);
 });
+
+app.get("*", function(req, res){
+    res.send("Sorry, page not found... What are you doing with your life?")
+})
 
 app.listen(process.env.PORT, process.env.IP, function(){
     console.log("starting app...");
