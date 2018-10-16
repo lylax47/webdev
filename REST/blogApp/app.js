@@ -1,7 +1,9 @@
 var express = require("express"),
 app = express(),
 mongoose = require("mongoose"),
-bodyParser = require("body-parser");
+bodyParser = require("body-parser"),
+methodOverride = require("method-override"),
+expressSanitizer = require("express-sanitizer");
 
 mongoose.connect("mongodb://localhost:27017/rest_blog_app", {useNewUrlParser:true});
 
@@ -9,6 +11,8 @@ mongoose.connect("mongodb://localhost:27017/rest_blog_app", {useNewUrlParser:tru
 app.set("view engine", "ejs");
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(methodOverride("_method"));
+app.use(expressSanitizer());
 
 //MONGOOSE MODEL CONFIG
 var blogSchema = new mongoose.Schema({
@@ -43,6 +47,7 @@ app.get("/blogs/new", function(req, res) {
 
 //CREATE ROUTE
 app.post("/blogs", function(req, res){
+    req.body.blog.body = req.sanitize(req.body.blog.body); //Will sanitize code, so that harmful code cannot be submitted.
     var data = req.body.blog;
     Blog.create(data, function(err, newBlog){
        if(err){
@@ -65,6 +70,42 @@ app.get("/blogs/:id", function(req, res) {
    }); 
 });
 
+//EDIT ROUTE
+app.get("/blogs/:id/edit", function(req, res){
+    Blog.findById(req.params.id, function(err, foundBlog){
+        if(err){
+            console.log(err);
+            res.redirect("/blogs");
+        } else{
+            res.render("edit", {blog:foundBlog});
+        }
+    });
+});
+
+//UPDATE ROUTE
+app.put("/blogs/:id", function(req, res){
+    req.body.blog.body = req.sanitize(req.body.blog.body); //You can use middleware. Run code before 2 routes.
+    Blog.findByIdAndUpdate(req.params.id, req.body.blog, function(err, updatedBlog){
+        if(err){
+            console.log(err);
+            res.redirect("/blogs");
+        } else{
+            res.redirect(`/blogs/${req.params.id}`);
+        }
+    });
+});
+
+//DELETE ROUTE
+app.delete("/blogs/:id", function(req, res){
+    Blog.findByIdAndRemove(req.params.id, function(err){
+        if(err){
+            console.log(err);
+            res.redirect("/blogs");
+        } else{
+            res.redirect("/blogs");
+        }
+    });
+});
 
 app.listen(process.env.PORT, process.env.IP, function(){
     console.log("Blog app is running...");
