@@ -23,41 +23,41 @@ var data = [
 
 function seedDB(){
     Campground.remove({}, function(err) {
-        if(err){
-            console.log(err);
-        } else{
-            console.log("Removed campgrounds");
-            Comment.remove({}, function(err){
-                if(err){
-                    console.log(err);
-                } else{
-                    console.log("Removed comments")
-                    data.forEach(function(seed){
-                        Campground.create(seed, function(err, campground){
-                            if(err){
-                                console.log(err);
-                            } else{
-                                console.log("added camp");
-                                Comment.create(
-                                    {
-                                        text:"I loved this place.",
-                                        author:"Voldemort"
-                                    }, function(err, comment){
-                                        if(err){
-                                            console.log(err);
-                                        } else{
-                                           campground.comments.push(comment);
-                                           campground.save();
-                                           console.log("Created new comment");
-                                        }
-                                    });
-                            }
-                        });
-                    });
-                }
-            });
+        // if(err){
+        //     console.log(err);
+        // } else{
+        //     console.log("Removed campgrounds");
+        //     Comment.remove({}, function(err){
+        //         if(err){
+        //             console.log(err);
+        //         } else{
+        //             console.log("Removed comments")
+        //             data.forEach(function(seed){
+        //                 Campground.create(seed, function(err, campground){
+        //                     if(err){
+        //                         console.log(err);
+        //                     } else{
+        //                         console.log("added camp");
+        //                         Comment.create(
+        //                             {
+        //                                 text:"I loved this place.",
+        //                                 author:"Voldemort"
+        //                             }, function(err, comment){
+        //                                 if(err){
+        //                                     console.log(err);
+        //                                 } else{
+        //                                   campground.comments.push(comment);
+        //                                   campground.save();
+        //                                   console.log("Created new comment");
+        //                                 }
+        //                             });
+        //                     }
+        //                 });
+        //             });
+        //         }
+        //     });
             
-        }
+        // }
     });
 }
  
