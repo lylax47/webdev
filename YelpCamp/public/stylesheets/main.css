@@ -13,3 +13,12 @@
 .delete-form {
     display: inline;
 }
+
+.auth-header {
+    text-align: center;
+}
+
+.auth-form {
+    width:30%;
+    margin: 25px auto;
+}

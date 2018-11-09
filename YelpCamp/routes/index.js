@@ -13,19 +13,18 @@ router.get("/", function(req, res){
 
 // REGISTER ROUTES
 router.get("/register", function(req, res){
-    res.render("auth/register");
+    res.render("auth/register", {page:'register'});
 });
 
 router.post("/register", function(req, res){
     var newUser = new User({username: req.body.username});
     User.register(newUser, req.body.password, function(err, user){
         if(err){
-            req.flash("error", err.message);//can just send error through. Already done.
             console.log(err);
-            return res.render("auth/register");
+            return res.render("register", {error: err.message});
         }
         passport.authenticate("local")(req, res, function(){
-            req.flash("success", `Welcome to YelpCamp ${user.username}`);
+            req.flash("success", `You have successfully signed up! Welcome to YelpCamp, ${user.username}`);
             res.redirect("/campgrounds");
         });
     });
@@ -34,7 +33,7 @@ router.post("/register", function(req, res){
 
 //LOGIN ROUTES
 router.get("/login", function(req, res){
-    res.render("auth/login");
+    res.render("auth/login", {page:'login'});
 });
 
 router.post("/login", passport.authenticate("local", 
