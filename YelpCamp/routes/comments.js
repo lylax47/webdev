@@ -3,6 +3,16 @@ var router = express.Router({mergeParams: true}); //passes params from route
 var Campground = require("../models/campground");
 var Comment = require("../models/comment");
 var middleware = require("../middleware");
+var NodeGeocoder = require("node-geocoder");
+
+var options = {
+    provider: 'google',
+    httpAdapter: 'https',
+    apiKey: process.env.GEOCODER_API_KEY,
+    formatter: null,
+};
+
+var geocoder = NodeGeocoder(options);
 
 //COMMENTS NEW
 router.get("/new", middleware.isLoggedIn, function(req, res){

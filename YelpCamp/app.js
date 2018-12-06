@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var express = require("express"),
     app = express(),
     bodyParser = require("body-parser"),
@@ -24,6 +26,8 @@ app.use(methodOverride("_method"));
 app.use(flash());
 // seedDB(); //Seed database if needed. Will remove current data.
 
+
+app.locals.moment = require("moment");
 //PASSPORT CONFIG
 app.use(require("express-session")({
     secret:"This is a secret",
