@@ -1,0 +1,21 @@
+<% include ../partials/header %>
+    <div class="row">
+        <div class="col-md-12">
+            <form action="/reset/<%= token %>" method="POST">
+                <legend>Reset Password</legend>
+                <div class="form-group">
+                    <label for="newPassword">New Password</label>
+                    <input class="form-control" type="password" name="newPassword" placeholder="new password" autofocus>
+                </div>
+                <div class="form-gorup">
+                    <label for="confirm">Confirm Password</label>
+                    <input class="form-control" type="password" name="confirm" placeholder="confirm password" autofocus>
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<% include ../partials/footer %>
