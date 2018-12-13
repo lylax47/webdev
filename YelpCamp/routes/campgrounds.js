@@ -1,9 +1,12 @@
 var express = require("express");
 var router = express.Router();
-var Campground = require("../models/campground");
-var middleware = require("../middleware"); //will automatically require contents of index.js if not specified.
 var NodeGeocoder = require("node-geocoder");
+var request = require("request");
+var multer = require("multer");
+var middleware = require("../middleware"); //will automatically require contents of index.js if not specified.
+var Campground = require("../models/campground");
 
+//GEOCODER SETUP
 var options = {
     provider: 'google',
     httpAdapter: 'https',
@@ -13,16 +16,57 @@ var options = {
 
 var geocoder = NodeGeocoder(options);
 
+//MULTER SETUP
+//name for file upload
+var storage = multer.diskStorage({
+    filename: function(req, file, callback) {
+        callback(null, Date.now() + file.originalname);
+    }
+});
+
+var imageFilter = function(req, file, cb){
+    if(!file.originalname.match(/\.(jpg|jpeg|png|gif)$/i)){
+       return cb(new Error("Only image files are are allowed!"), false); 
+    }
+    cb(null, true);
+}
+
+var upload = multer({storage: storage, fileFilter: imageFilter});
+
+var cloudinary = require('cloudinary');
+cloudinary.config({
+    cloud_name: "dpvwbzizw",
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
+})
+
+
 //INDEX - list of all campgrounds
 router.get("/", function(req, res){
-    Campground.find({}, function(err, allCampgrounds){
-        if(err){
-            console.log(err);
-        } else{
-            res.render("campgrounds/index", {campgrounds: allCampgrounds, page:'campgrounds'});
-        }
-    });
-    
+    if(req.query.search){
+        var regex = new RegExp(escapeRegex(req.query.search), "gi"); //just title, ignore case
+        escapeRegex(req.query.search);
+        Campground.find({name:regex}, function(err, allCampgrounds){
+            if(err){
+                console.log(err);
+            } else{
+                if(allCampgrounds.length < 1){
+                    
+                    req.flash("error", "Sorry, no campgrounds match that query. Please try a again.");
+                    return res.redirect("back");
+                }
+                res.render("campgrounds/index", {campgrounds: allCampgrounds, page:'campgrounds'});
+            } 
+        });
+    } else{
+        Campground.find({}, function(err, allCampgrounds){
+            if(err){
+                console.log(err);
+            } else{
+                res.render("campgrounds/index", {campgrounds: allCampgrounds, page:'campgrounds'});
+            }
+        });
+    }
 });
 
 //CREATE - create new campground
@@ -118,5 +162,11 @@ router.delete("/:id", middleware.checkCampgroundOwnership, function(req, res){
         }
     });
 });
+
+
+function escapeRegex(text){ //hoisting
+    return text.replace(/[-[\]{}()*+?.,\\^$!#\s]/g, "\\$&");
+}
+
 
 module.exports = router;

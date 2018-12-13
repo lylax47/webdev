@@ -2,6 +2,8 @@ var express = require("express");
 var router = express.Router();
 var passport = require("passport");
 var async = require("async");
+var { google } = require("googleapis");
+var OAuth2 = google.auth.OAuth2;
 var nodemailer = require("nodemailer");
 var crypto = require("crypto");
 var User = require("../models/user");
@@ -71,64 +73,65 @@ router.get("/forgot", function(req, res){
 });
 
 router.post("/forgot", function(req, res, next){
-   async.waterfall([
-       function(done){
-           crypto.randomBytes(20, function(err, buf){ //create hash
-               var token = buf.toString("hex");
-               done(err, token);
-           });
-       },
-       function(token, done){
-           User.findOne({email:req.body.email}, function(err, user){
-               if(err){
-                   req.flash("error", err.message);
-                   res.redirect("back");
-               }
-               if (!user){
-                   req.flash("error", "No account with that email address exists.");
-                   return res.redirect("/forgot");
-               }
+    async.waterfall([
+        function(done){
+            crypto.randomBytes(20, function(err, buf){ //create hash
+                var token = buf.toString("hex");
+                done(err, token);
+            });
+        },
+        function(token, done){
+            User.findOne({email:req.body.email}, function(err, user){
+                if(err){
+                    req.flash("error", err.message);
+                    res.redirect("back");
+                }
+                if (!user){
+                    req.flash("error", "No account with that email address exists.");
+                    return res.redirect("/forgot");
+                }
                
-               user.resetPasswordToken = token;
-               user.resetPasswordExpires = Date.now() + 3600000;
+                user.resetPasswordToken = token;
+                user.resetPasswordExpires = Date.now() + 3600000;
                
-               user.save(function(err){
-                   done(err, token, user);
-               });
-           });
-       },
-       function(token, user, done){
-           var smtpTransport = nodemailer.createTransport({
-               host: "smtp.gmail.com",
-               port: 465,
-               secure: true,
-               auth:{
-                   type: "OAuth2",
-                   user: "jjlyell@gmail.com", //temp personal address
-                   password: process.env.GMAILPW,
-                   clientId: process.env.CLIENTID,
-                   clientSecret: process.env.CLIENTSECRET,
-                   accessToken: process.env.ACCESSTOKEN
-               }
-           });
-           var mailOptions = {
-               to: user.email,
-               from: "jjlyell@gmail.com",
-               subject: "YelpCamp Password Reset",
-               text: `You are receiving this because you (or someone else) has requested a password reset.\n\n
-               Please click on the link, or paste into your browser to complete the reset\n\n
-               http://${req.headers.host}/reset/${token}\n\n
-               If you did not request this please ignore this email and your password will remain the same.`
-           };
-           smtpTransport.sendMail(mailOptions, function(err){
-               console.log("email was sent!");
-               req.flash("success", `An email has been sent to ${user.email} with further instructions.`);
-               done(err, done);
-           });
-       }
-    ], function(err){
-        if(err) return next(err);
-        res.redirect("/forgot");
+                user.save(function(err){
+                    done(err, token, user);
+                });
+            });
+        },
+        function(token, user, done){
+            var smtpTransport = nodemailer.createTransport({
+                host: "smtp.gmail.com",
+                port: 465,
+                secure: true,
+                auth:{
+                    type: "OAuth2",
+                    user: "jjlyell@gmail.com",
+                    clientId: process.env.CLIENTID,
+                    clientSecret: process.env.CLIENTSECRET,
+                    refreshToken: process.env.REFRESHTOKEN,
+                    accessToken: process.env.ACCESSTOKEN,
+                    expires:3600
+                }
+            });
+            var mailOptions = {
+                to: user.email,
+                from: "jjlyell@gmail.com",
+                subject: "YelpCamp Password Reset",
+                text: `You are receiving this because you (or someone else) has requested a password reset.\n\n
+                Please click on the link, or paste into your browser to complete the reset\n\n
+                http://${req.headers.host}/reset/${token}\n\n
+                If you did not request this please ignore this email and your password will remain the same.`
+            };
+            smtpTransport.sendMail(mailOptions, function(err){
+                console.log("email was sent!");
+                req.flash("success", `An email has been sent to ${user.email} with further instructions.`);
+                done(err, done);
+            });
+        }
+     ], function(err){
+         if(err) return next(err);
+         res.redirect("/forgot");
     }); 
 });
 
@@ -175,18 +178,19 @@ router.post("/reset/:token", function(req, res){
                secure: true,
                auth:{
                    type: "OAuth2",
-                   user: "jjlyell@gmail.com", //temp personal address
-                   password: process.env.GMAILPW,
+                   user: "jjlyell@gmail.com",
                    clientId: process.env.CLIENTID,
                    clientSecret: process.env.CLIENTSECRET,
-                   accessToken: process.env.ACCESSTOKEN
+                   refreshToken: process.env.REFRESHTOKEN,
+                   accessToken: process.env.ACCESSTOKEN,
+                   expires:3600
                }
             });
             var mailOptions = {
                to: user.email,
                from: "jjlyell@gmail.com",
                subject: "YelpCamp Password Has Been Changed",
-               text: `This is confirmation that the password for ${user.email} has been changed.`
+               text: `This is confirmation that the password for ${user.email} has been changed.`,
            };
            smtpTransport.sendMail(mailOptions, function(err){
                console.log("email was sent!");
@@ -225,5 +229,7 @@ function isLoggedIn(req, res, next){
     }
     res.redirect("/login");
 }
+
+
 
 module.exports = router;
