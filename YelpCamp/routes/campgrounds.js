@@ -38,7 +38,7 @@ cloudinary.config({
     cloud_name: "dpvwbzizw",
     api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
-})
+});
 
 
 //INDEX - list of all campgrounds
@@ -70,39 +70,36 @@ router.get("/", function(req, res){
 });
 
 //CREATE - create new campground
-router.post("/", middleware.isLoggedIn, function(req, res){
-    var name = req.body.name;
-    var price = req.body.price;
-    var image = req.body.image;
-    var desc = req.body.description;
-    var author = {
-        id: req.user._id,
-        username: req.user.username
-    };
-    geocoder.geocode(req.body.location, function(err, data){
+router.post("/", middleware.isLoggedIn, upload.single("image"), function(req, res){
+
+    geocoder.geocode(req.body.campground.location, function(err, data){
         if(err || !data.length){
            req.flash('error', 'invalid address');
-           console.log(err);
            return res.redirect('back');
         } else{
-            var lat = data[0].latitude;
-            var lng = data[0].longitude;
-            var location = data[0].formattedAddress;
-            var newCampground = {name:name, price:price, image:image, description:desc, author: author, location: location, lat: lat, lng: lng};
-            Campground.create(newCampground, function(err, newlyCreated){
-                if(err){
-                    console.log(err);
-                } else {
-                    console.log(newlyCreated);
-                    res.redirect("/campgrounds"); //defaults to get request if repeat!
-                }
+            req.body.campground.lat = data[0].latitude;
+            req.body.campground.lng = data[0].longitude;
+            req.body.campground.location = data[0].formattedAddress;
+            // var newCampground = {name:name, price:price, image:image, description:desc, author: author, location: location, lat: lat, lng: lng};
+            //cloudinary image upload
+            cloudinary.uploader.upload(req.file.path, function(result){ //bad to have multiple callbcaks??? YES!
+                req.body.campground.image = result.secure_url;
+                req.body.campground.author = {
+                    id: req.user._id,
+                    username: req.user.username
+                };
+                Campground.create(req.body.campground, function(err, newlyCreated){
+                    if(err){
+                        req.flash("error", err.message);
+                        return res.redirect("back");
+                    } else {
+                        console.log(newlyCreated);
+                        res.redirect(`/campgrounds/${newlyCreated.id}`); //defaults to get request if repeat!
+                    }
+                });
             });
         }
     });
-    
-    
-    
-   
 });
 
 //NEW - form for new campground.
@@ -132,7 +129,7 @@ router.get("/:id/edit", middleware.checkCampgroundOwnership, function(req, res){
 });
 
 //UPDATE CAMPGROUND ROUTE
-router.put("/:id", middleware.checkCampgroundOwnership, function(req, res){
+router.put("/:id", middleware.checkCampgroundOwnership, upload.single("image"), function(req, res){
     geocoder.geocode(req.body.location, function(err, data){
         if(err || !data.length){
            req.flash('error', 'invalid address');
