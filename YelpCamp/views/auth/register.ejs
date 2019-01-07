@@ -1,40 +1,31 @@
 <% include ../partials/header %>
-<h1 class="auth-header">Sign Up</h1>
-<div class="auth-form">
-    <form action="/register" method="POST">
-        <div class="form-group">
-            <label for="username">Username</label>
-            <input class="form-control" type="text" name="username" placeholder="username">
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input class="form-control" type="password" name="password" placeholder="password">
-        </div>
-        <div class="form-group">
-            <label for="firstName">First Name</label>
-            <input class="form-control" type="text" name="firstName" placeholder="first name">
-        </div>
-        <div class="form-group">
-            <label for="lastName">Last Name</label>
-            <input class="form-control" type="text" name="lastName" placeholder="last name">
-        </div>
-        <div class="form-group">
-            <label for="username">Email</label></label>
-            <input class="form-control" type="text" name="email" placeholder="email">
-        </div>
-        <div class="form-group">
-            <label for="avatarUrl">Avatar URL</label></label>
-            <input class="form-control" type="text" name="avatarUrl" placeholder="avatar url">
-        </div>
-        <div class="form-group">
-            <label for="adminCode">Admin Code</label>
-            <input class="form-control" type="password" name="adminCode" placeholder="admin code">
-        </div>
-        <div>
-            <button class="btn btn-lg btn-primary btn-block">Sign Up</button>
-        </div>
-    </form>
+<div class="text-center">
+    
+</div>
+<form class="form" action="/register" method="POST">
+        <h1 class="h3 mb-3 font-weight-normal">Sign Up</h1>
+        <label for="username">Username</label>
+        <input class="form-control" type="text" name="username" placeholder="username">
+        <label for="password">Password</label>
+        <input class="form-control" type="password" name="password" placeholder="password">
+        <label for="firstName">First Name</label>
+        <input class="form-control" type="text" name="firstName" placeholder="first name">
+        <label for="lastName">Last Name</label>
+        <input class="form-control" type="text" name="lastName" placeholder="last name">
+        <label for="username">Email</label></label>
+        <input class="form-control" type="text" name="email" placeholder="email">
+        <label for="avatarUrl">Avatar URL</label></label>
+        <input class="form-control" type="text" name="avatarUrl" placeholder="avatar url">
+        <label for="adminCode">Admin Code</label>
+        <input class="form-control" type="password" name="adminCode" placeholder="admin code">
+    <div class="form-btn">
+        <button class="btn btn-lg btn-primary btn-block">Sign Up</button>
+    </div>
+        
+</form>
+<div class="text-center">
     <a href="/campgrounds">Go Back</a>
 </div>
+
 
 <% include ../partials/footer %>

@@ -41,8 +41,17 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 //middleware for every route.
-app.use(function(req, res, next){
-   res.locals.currentUser = req.user;
+app.use(async function(req, res, next){
+    res.locals.currentUser = req.user;
+    if(req.user){
+        try{
+            let user = await User.findById(req.user._id).populate("notifications", null, {isRead: false}).exec();
+            console.log(user)
+            res.locals.notifications = user.notifications.reverse();
+       } catch(err){
+           console.log(err.message);
+       }
+   }
    res.locals.error = req.flash("error"); //will always pass some variable to routes
    res.locals.success = req.flash("success");
    next();

@@ -1,28 +1,48 @@
 <% include ../partials/header %>
-    <div class="row">
-        <div class="col-md-4">
-            <h1><%= user.username %></h1>
-            <div class="thumbnail">
-                <img src="<%= user.avatar %>" alt="User profile image">
-                <div class="caption"><a href="mailto:<%= user.email %>"><%= user.email %></a></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h1><%= user.username %></h1>
+                <div class="card">
+                    <img class="card-img-top md-img" src="<%= user.avatar %>" alt="User profile image">
+                    <div class="card-body">
+                        <div class="caption">Email: <a href="mailto:<%= user.email %>"><%= user.email %></a></div>
+                        <a href="/follow/<%= user.id %>"><button class="btn btn-primary">Follow</button></a>
+                        <hr>
+                        <p>
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                             
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
+                            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
+                            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
+                            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+                        </p>
+                    </div>
+                </div>
             </div>
-             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-             Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-             Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-             Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-             
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
-            Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. 
-            Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. 
-            Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-        </div>
-        <div class-"col-md-8">
-            <h3><%= user.username %>'s Campgrounds</h3>
-            <ul>
-           <% campgrounds.forEach(function(campground){ %>
-                <li><a href="/campgrounds/<%= campground.id %>"><%= campground.name %></a></li>
-           <% }); %>
-           </ul>
+            <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title"><%= user.username %>'s Campgrounds</h3>
+                            <hr>
+                            <div class="row">
+                            <% campgrounds.forEach(function(campground){ %>
+                                <div class="col-md-6 mb-4">
+                                    <div class="card">
+                                        <img class="card-img-top md-img" src="<%= campground.image %>" alt="<% campground.name %>">
+                                        <div class="card-body">
+                                            <h4 class="card-title"><a href="/campgrounds/<%= campground.id %>"><%= campground.name %></a></h4>
+                                        </div>
+                                    </div>
+                                </div>
+                            <% }); %>
+                            </div>
+                        </div>
+                    </div>
+            </div>
         </div>
     </div>
 <% include ../partials/footer %>

@@ -5,6 +5,9 @@ var request = require("request");
 var multer = require("multer");
 var middleware = require("../middleware"); //will automatically require contents of index.js if not specified.
 var Campground = require("../models/campground");
+var Notification = require("../models/notification");
+var User = require("../models/user");
+
 
 //GEOCODER SETUP
 var options = {
@@ -70,38 +73,77 @@ router.get("/", function(req, res){
 });
 
 //CREATE - create new campground
-router.post("/", middleware.isLoggedIn, upload.single("image"), function(req, res){
-
-    geocoder.geocode(req.body.campground.location, function(err, data){
-        if(err || !data.length){
-           req.flash('error', 'invalid address');
-           return res.redirect('back');
-        } else{
-            req.body.campground.lat = data[0].latitude;
-            req.body.campground.lng = data[0].longitude;
-            req.body.campground.location = data[0].formattedAddress;
-            // var newCampground = {name:name, price:price, image:image, description:desc, author: author, location: location, lat: lat, lng: lng};
-            //cloudinary image upload
-            cloudinary.uploader.upload(req.file.path, function(result){ //bad to have multiple callbcaks??? YES!
-                req.body.campground.image = result.secure_url;
-                req.body.campground.imageId = result.public_id;
-                req.body.campground.author = {
-                    id: req.user._id,
-                    username: req.user.username
-                };
-                Campground.create(req.body.campground, function(err, newlyCreated){
-                    if(err){
-                        req.flash("error", err.message);
-                        return res.redirect("back");
-                    } else {
-                        console.log(newlyCreated);
-                        res.redirect(`/campgrounds/${newlyCreated.id}`); //defaults to get request if repeat!
-                    }
-                });
-            });
+router.post("/", middleware.isLoggedIn, upload.single("image"), async function(req, res){
+    try{
+        //geoData
+        let geoData = await geocoder.geocode(req.body.campground.location);
+        req.body.campground.lat = geoData[0].latitude;
+        req.body.campground.lng = geoData[0].longitude;
+        req.body.campground.location = geoData[0].formattedAddress;
+        
+        //image + author data
+        let cloudinaryRes = await cloudinary.uploader.upload(req.file.path);
+        req.body.campground.image = cloudinaryRes.secure_url;
+        req.body.campground.imageId = cloudinaryRes.public_id;
+        req.body.campground.author = {
+            id: req.user._id,
+            username: req.user.username
+        };
+        
+        let newlyCreated = await Campground.create(req.body.campground);
+        
+        //notification
+        let user = await User.findById(req.user._id).populate("followers").exec();
+        let newNotification = {
+            username: req.user.username,
+            campground: newlyCreated.id
         }
-    });
+        for(const follower of user.followers){
+            let notification = await Notification.create(newNotification);
+            follower.notifications.push(notification);
+            follower.save();
+        }
+        
+        res.redirect(`/campgrounds/${newlyCreated.id}`);
+        
+    } catch(err){
+        req.flash('error', err.message);
+        return res.redirect('back');
+    }
+    
 });
+
+
+//     geocoder.geocode(req.body.campground.location, function(err, data){
+//         if(err || !data.length){
+//           req.flash('error', 'invalid address');
+//           return res.redirect('back');
+//         } else{
+//             req.body.campground.lat = data[0].latitude;
+//             req.body.campground.lng = data[0].longitude;
+//             req.body.campground.location = data[0].formattedAddress;
+//             // var newCampground = {name:name, price:price, image:image, description:desc, author: author, location: location, lat: lat, lng: lng};
+//             //cloudinary image upload
+//             cloudinary.uploader.upload(req.file.path, function(result){ //bad to have multiple callbcaks??? YES!
+//                 req.body.campground.image = result.secure_url;
+//                 req.body.campground.imageId = result.public_id;
+//                 req.body.campground.author = {
+//                     id: req.user._id,
+//                     username: req.user.username
+//                 };
+//                 Campground.create(req.body.campground, function(err, newlyCreated){
+//                     if(err){
+//                         req.flash("error", err.message);
+//                         return res.redirect("back");
+//                     } else {
+//                         console.log(newlyCreated);
+//                         res.redirect(`/campgrounds/${newlyCreated.id}`); //defaults to get request if repeat!
+//                     }
+//                 });
+//             });
+//         }
+//     });
+// });
 
 //NEW - form for new campground.
 router.get("/new", middleware.isLoggedIn, function(req, res){ //should be defined before id as it would otherwise be interpreted as id!!!
