@@ -5,6 +5,7 @@
 <ul>
 	<% allNotifications.forEach(function(notification) { %>
 	<li>
+	    <%= notification %>
 		<a href="/campgrounds/<%= notification.campgroundId %>">
 			<strong><%= notification.username %></strong> <em>created a new campground</em>
 		</a>

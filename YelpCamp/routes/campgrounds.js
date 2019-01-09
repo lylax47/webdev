@@ -96,7 +96,7 @@ router.post("/", middleware.isLoggedIn, upload.single("image"), async function(r
         let user = await User.findById(req.user._id).populate("followers").exec();
         let newNotification = {
             username: req.user.username,
-            campground: newlyCreated.id
+            campgroundId: newlyCreated.id
         }
         for(const follower of user.followers){
             let notification = await Notification.create(newNotification);
@@ -208,11 +208,7 @@ router.put("/:id", middleware.checkCampgroundOwnership, upload.single("image"), 
 
 //DESTROY CAMPGROUND ROUTE
 router.delete("/:id", middleware.checkCampgroundOwnership, function(req, res){
-    Campground.findByIdAndRemove(req.params.id, async function(err, deletedCampground){
-        if(err){
-            req.flash("error", err.message);
-            return res.redirect("back");
-        }
+    Campground.findByIdAndRemove(req.params.id, async function(deletedCampground){
         try{
             await cloudinary.v2.uploader.destroy(deletedCampground.imageId);
             res.redirect("/campgrounds");

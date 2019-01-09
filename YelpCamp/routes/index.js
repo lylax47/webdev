@@ -228,8 +228,7 @@ router.get("/users/:id", async function(req, res){
 //FOLLOW ROUTE
 router.get("/follow/:id", isLoggedIn, async function(req, res){
     try {
-        let user = await User.findById(req.params.id);
-        user.followers.push(req.user._id);
+        let user = await User.findByIdAndUpdate(req.params.id, { $addToSet: {followers: { $each: [req.user._id]} } }, {new:true});
         user.save();
         req.flash("success", `Successfully followed ${user.username}!`);
         res.redirect(`/users/${req.params.id}`);
@@ -238,6 +237,13 @@ router.get("/follow/:id", isLoggedIn, async function(req, res){
         res.redirect("back");
     }
 });
+
+//UNFOLLOW ROUTE
+// router.delete("/unfollow/:id", isLoggedIn, async function(req, res){
+//     try{
+//         let user = await User.
+//     }
+// }
 
 //VIEW NOTIFICATIONS ROUTE
 router.get("/notifications", isLoggedIn, async function(req, res){
@@ -265,7 +271,7 @@ router.get("/notifications/:id", isLoggedIn, async function(req, res){
         req.flash("error", err.message);
         res.dedirect("back");
     }
-})
+});
 
 function isLoggedIn(req, res, next){
     if(req.isAuthenticated()){

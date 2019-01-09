@@ -7,7 +7,13 @@
                     <img class="card-img-top md-img" src="<%= user.avatar %>" alt="User profile image">
                     <div class="card-body">
                         <div class="caption">Email: <a href="mailto:<%= user.email %>"><%= user.email %></a></div>
-                        <a href="/follow/<%= user.id %>"><button class="btn btn-primary">Follow</button></a>
+                        <hr>
+                        <%= user.followers.indexOf(currentUser.id) %>
+                        <% if(user.followers.indexOf(currentUser.id) <= 0){ %>
+                            <a href="/follow/<%= user.id %>"><button class="btn btn-primary">Unfollow</button></a>
+                        <% } else{ %>
+                            <a href="/follow/<%= user.id %>"><button class="btn btn-primary">Follow</button></a>
+                        <% } %>
                         <hr>
                         <p>
                             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. 
