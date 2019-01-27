@@ -23,7 +23,17 @@ var campgroundSchema = new mongoose.Schema({
             type:mongoose.Schema.Types.ObjectId,
             ref:"Comment"
         }
-    ]
+    ],
+    reviews:[
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Review"
+        }
+    ],
+    rating: {
+        type: Number,
+        default: 0
+    }
 });
 
 var Campground = mongoose.model("Campground", campgroundSchema);

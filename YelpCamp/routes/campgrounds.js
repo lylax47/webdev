@@ -7,6 +7,8 @@ var middleware = require("../middleware"); //will automatically require contents
 var Campground = require("../models/campground");
 var Notification = require("../models/notification");
 var User = require("../models/user");
+var Review = require("../models/review");
+var Comment = require("../models/comment");
 
 
 //GEOCODER SETUP
@@ -151,14 +153,17 @@ router.get("/new", middleware.isLoggedIn, function(req, res){ //should be define
 });
 
 //SHOW - shows specific info for one campground
-router.get("/:id", function(req, res){
-    Campground.findById(req.params.id).populate("comments").exec(function(err, foundCampground){
-        if(err){
-            console.log(err);
-        } else{
-            res.render("campgrounds/show", {campground:foundCampground});
-        }
-    });
+router.get("/:id", async function(req, res){
+    try{
+        let foundCampground = await Campground.findById(req.params.id).populate("comments").populate("comments").populate({
+            path: "reviews",
+            options: {sort :{createdAt: -1}}
+        }).exec();
+        res.render("campgrounds/show", {campground:foundCampground});
+    } catch(err){
+        req.flash("error", err.message);
+        res.redirect("back");
+    }
 });
 
 //EDIT CAMPGROUND ROUTE
@@ -207,18 +212,19 @@ router.put("/:id", middleware.checkCampgroundOwnership, upload.single("image"), 
 });
 
 //DESTROY CAMPGROUND ROUTE
-router.delete("/:id", middleware.checkCampgroundOwnership, function(req, res){
-    Campground.findByIdAndRemove(req.params.id, async function(deletedCampground){
-        try{
-            await cloudinary.v2.uploader.destroy(deletedCampground.imageId);
-            res.redirect("/campgrounds");
-        } catch(err){
-            if(err){
-                req.flash("error", err.message);
-                return res.redirect("back");
-            }
-        }
-    });
+router.delete("/:id", middleware.checkCampgroundOwnership, async function(req, res){
+    try{
+        let deletedCampground = await Campground.findById(req.params.id)
+        await Comment.remove({"_id": {$in: deletedCampground.comments}});
+        await Review.remove({"_id": {$in: deletedCampground.reveiws}});
+        await cloudinary.v2.uploader.destroy(deletedCampground.imageId);
+        await deletedCampground.remove();
+        req.flash("success", "Campground deleted successfully.");
+        res.redirect("/campgrounds");
+    } catch(err){
+        req.flash("error", err.message);
+        return res.redirect("back");
+    }
 });
 
 
